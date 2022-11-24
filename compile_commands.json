@@ -1,0 +1,17 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-I./inc",
+      "-I./vendor/sl_lidar_sdk/inc",
+      "-c",
+      "-o",
+      "vendor/sl_lidar_sdk/src/sl_serial_channel.o",
+      "vendor/sl_lidar_sdk/src/sl_serial_channel.cpp"
+    ],
+    "directory": "/home/luke/Documents/C++/Robot",
+    "file": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/sl_serial_channel.cpp",
+    "output": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/sl_serial_channel.o"
+  }
+]
