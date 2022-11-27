@@ -1,8 +1,12 @@
 #pragma once
 
+#include <random>
+#include <optional>
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <iostream>
+#include <iterator>
 #include <limits>
 #include <memory>
 
@@ -12,7 +16,9 @@
 /// @brief a node for an RDTree data structure.
 /// @tparam T the type of data.
 /// @tparam N the number of data elements.
-template <typename T, size_t N> struct RDTreeNode {
+template <typename T, size_t N>
+struct RDTreeNode
+{
   typedef std::array<T, N> RDTreeNodeData;
 
 public:
@@ -36,7 +42,8 @@ public:
   /// @brief create a root node.
   /// @param data the data for the root node.
   /// @return the constructed root node as smart pointer.
-  static std::shared_ptr<RDTreeNode> createRoot(const RDTreeNodeData &data) {
+  static std::shared_ptr<RDTreeNode> createRoot(const RDTreeNodeData &data)
+  {
     return std::make_shared<RDTreeNode>(std::shared_ptr<RDTreeNode>(nullptr),
                                         std::shared_ptr<RDTreeNode>(nullptr),
                                         std::shared_ptr<RDTreeNode>(nullptr),
@@ -48,7 +55,8 @@ public:
   /// @param parent the parent of the child node.
   /// @return the constructed child node as smart pointer.
   static std::shared_ptr<RDTreeNode>
-  createChild(const RDTreeNodeData &data, std::weak_ptr<RDTreeNode> parent) {
+  createChild(const RDTreeNodeData &data, std::weak_ptr<RDTreeNode> parent)
+  {
     return std::make_shared<RDTreeNode>(
         parent, std::shared_ptr<RDTreeNode>(nullptr),
         std::shared_ptr<RDTreeNode>(nullptr), data);
@@ -57,31 +65,36 @@ public:
 public:
   /// @brief checks if the node has a parent.
   /// @return true if the node has a parent.
-  inline bool hasParent(void) const noexcept {
+  inline bool hasParent(void) const noexcept
+  {
     return !(mParent.expired() || mParent.lock().get() == nullptr);
   }
 
   /// @brief checks if the node has a left child.
   /// @return true if there is a left child.
-  inline bool hasLeftChild(void) const noexcept {
+  inline bool hasLeftChild(void) const noexcept
+  {
     return mLeftChild.get() != nullptr;
   }
 
   /// @brief checks if the node has a right child.
   /// @return true if the node has a right child.
-  inline bool hasRightChild(void) const noexcept {
+  inline bool hasRightChild(void) const noexcept
+  {
     return mRightChild.get() != nullptr;
   }
 
   /// @brief gets the left child.
   /// @return the left child.
-  inline std::shared_ptr<RDTreeNode<T, N>> getLeftChild(void) {
+  inline std::shared_ptr<RDTreeNode<T, N>> getLeftChild(void)
+  {
     return mLeftChild;
   }
 
   /// @brief gets the right child.
   /// @return the right child.
-  inline std::shared_ptr<RDTreeNode<T, N>> getRightChild(void) {
+  inline std::shared_ptr<RDTreeNode<T, N>> getRightChild(void)
+  {
     return mRightChild;
   }
 
@@ -89,7 +102,8 @@ public:
   /// @param leftChild the left child to set.
   /// @return the current instance.
   inline RDTreeNode<T, N> &
-  setLeftChild(const std::shared_ptr<RDTreeNode<T, N>> &leftChild) {
+  setLeftChild(const std::shared_ptr<RDTreeNode<T, N>> &leftChild)
+  {
     mLeftChild = leftChild;
 
     return *this;
@@ -99,7 +113,8 @@ public:
   /// @param rightChild the right child to set.
   /// @return the current instance.
   inline RDTreeNode<T, N> &
-  setRightChild(const std::shared_ptr<RDTreeNode<T, N>> &rightChild) {
+  setRightChild(const std::shared_ptr<RDTreeNode<T, N>> &rightChild)
+  {
     mRightChild = rightChild;
 
     return *this;
@@ -125,14 +140,16 @@ public:
   /// @brief calculates the distance to the other given point.
   /// @param other the other point.
   /// @return the distance to the other point.
-  inline T euclideanDistanceTo(const std::array<T, N> &other) const {
+  inline T euclideanDistanceTo(const std::array<T, N> &other) const
+  {
     return std::sqrt(squaredDistanceTo(other));
   }
 
   /// @brief calculates the squared distance to the other given point.
   /// @param the other point.
   /// @return the squared distance to the other point.
-  inline T squaredDistanceTo(const std::array<T, N> &other) const {
+  inline T squaredDistanceTo(const std::array<T, N> &other) const
+  {
     T sum = static_cast<T>(0);
 
     for (size_t i = 0; i < N; ++i)
@@ -140,12 +157,26 @@ public:
 
     return sum;
   }
+
+  /// @brief prints the current node.
+  void print(void) const {
+    std::cout << "{";
+
+    for (size_t i = 0; i < N; ++i) {
+      std::cout << mData[i];
+      if (i + 1 < N) std::cout << ", ";
+    }
+
+    std::cout << "}" << std::endl;
+  }
 };
 
 /// @brief the RDTree data structure.
 /// @tparam T the type of data.
 /// @tparam N the number of data elements.
-template <typename T, size_t N> class RDTree {
+template <typename T, size_t N>
+class RDTree
+{
 
 protected:
   std::shared_ptr<RDTreeNode<T, N>> mRoot;
@@ -159,9 +190,37 @@ public:
       : mRoot(root), mSize(size) {}
 
 public:
+  /// @brief generates an rdtree with random values (mostly for testing).
+  /// @param n the number of random values it should contain.
+  /// @param min the lower part of the random range.
+  /// @param max the upper part of the random range.
+  /// @return the random;y generated tre.
+  static RDTree<T, N> random(size_t n, const std::array<T, N> &min, const std::array<T, N> &max)
+  {
+    auto tree = empty();
+
+    std::array<std::uniform_real_distribution<T>, N> distributions;
+    for (size_t i = 0; i < N; ++i)
+      distributions.at(i) = std::uniform_real_distribution<T>(min.at(i), max.at(i));
+
+    std::random_device randomDevice;
+    std::mt19937 randomEngine(randomDevice());
+
+    for (size_t i = 0; i < n; ++i)
+    {
+      std::array<T, N> data;
+      for (size_t j = 0; j < N; ++j)
+        data.at(j) = distributions.at(j)(randomEngine);
+      tree.insert(data);
+    }
+
+    return tree;
+  }
+
   /// @brief Constructs an empty RDTree.
   /// @return the constructed empty RDTree.
-  static RDTree<T, N> empty(void) noexcept {
+  static RDTree<T, N> empty(void) noexcept
+  {
     return RDTree(std::shared_ptr<RDTreeNode<T, N>>(nullptr), 0);
   }
 
@@ -178,7 +237,8 @@ protected:
   /// @brief inserts a root into the RDTree.
   /// @param data the data for the rood child/
   /// @return the current RDTree instance.
-  RDTree<T, N> &insertRoot(const std::array<T, N> &data) {
+  RDTree<T, N> &insertRoot(const std::array<T, N> &data)
+  {
     mRoot = RDTreeNode<T, N>::createRoot(data);
     return *this;
   }
@@ -186,28 +246,29 @@ protected:
   /// @brief inserts a child into the RDTree.
   /// @param data the data to insert into the RDTree.
   /// @return the current RDTree instance.
-  RDTree<T, N> &insertChild(const std::array<T, N> &data) {
+  RDTree<T, N> &insertChild(const std::array<T, N> &data)
+  {
     std::shared_ptr<RDTreeNode<T, N>> currentNode = mRoot;
 
-    for (size_t n = 0; currentNode.get() != nullptr; n = (n + 1) % N) {
-      // Gets the values to compare.
-      const T &a = currentNode->get(n);
-      const T &b = data.at(n);
-
-      // If the value of the nth value in the current node is greater than
-      //  the nth value in the data, we insert it in the left child.
-      if (a > b) {
-        if (currentNode->getLeftChild().get() != nullptr) {
+    for (size_t i = 0;; ++i)
+    {
+      if (currentNode->get(i % N) > data.at(i % N))
+      {
+        if (currentNode->getLeftChild().get() != nullptr)
           currentNode = currentNode->getLeftChild();
-        } else {
+        else
+        {
           currentNode->setLeftChild(
               RDTreeNode<T, N>::createChild(data, currentNode));
           break;
         }
-      } else {
-        if (currentNode->getRightChild().get() != nullptr) {
+      }
+      else
+      {
+        if (currentNode->getRightChild().get() != nullptr)
           currentNode = currentNode->getRightChild();
-        } else {
+        else
+        {
           currentNode->setRightChild(
               RDTreeNode<T, N>::createChild(data, currentNode));
           break;
@@ -222,18 +283,22 @@ protected:
   /// @param node the node to print.
   /// @param n the indentation number.
   void print(const std::shared_ptr<RDTreeNode<T, N>> &node,
-             const size_t n) const {
-    if (node.get() == nullptr) {
+             const size_t n) const
+  {
+    if (node.get() == nullptr)
+    {
       return;
     }
 
-    for (size_t i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i)
+    {
       std::cout << "  ";
     }
 
     std::cout << '{';
 
-    for (size_t i = 0; i < N; ++i) {
+    for (size_t i = 0; i < N; ++i)
+    {
       std::cout << node->get(i);
       if (i + 1 != N)
         std::cout << ", ";
@@ -249,7 +314,8 @@ public:
   /// @brief inserts a datapoint into the RDTree.
   /// @param data the data to insert.
   /// @return the current RDTree instance.
-  RDTree<T, N> &insert(const std::array<T, N> &data) {
+  RDTree<T, N> &insert(const std::array<T, N> &data)
+  {
     ++this->mSize;
     return isEmpty() ? insertRoot(data) : insertChild(data);
   }
@@ -257,34 +323,22 @@ public:
   /// @brief checks if the tree contains the given data points.
   /// @param data the data to check for.
   /// @return true if the tree contains the given data.
-  bool contains(const std::array<T, N> &data) {
+  bool contains(const std::array<T, N> &data)
+  {
     std::shared_ptr<RDTreeNode<T, N>> currentNode = mRoot;
 
-    for (size_t n = 0; currentNode.get() != nullptr; n = (n + 1) % N) {
+    for (size_t n = 0; currentNode.get() != nullptr; n = (n + 1) % N)
+    {
       if (std::equal(data.begin(), data.end(),
-                     currentNode->getData().begin())) {
+                     currentNode->getData().begin()))
+      {
         return true;
       }
 
-      // Gets the values to compare.
-      const T &a = currentNode->get(n);
-      const T &b = data.at(n);
-
-      // If the value of the nth value in the current node is greater than
-      //  the nth value in the data, we insert it in the left child.
-      if (a > b) {
-        if (currentNode->getLeftChild().get() != nullptr) {
-          currentNode = currentNode->getLeftChild();
-        } else {
-          break;
-        }
-      } else {
-        if (currentNode->getRightChild().get() != nullptr) {
-          currentNode = currentNode->getRightChild();
-        } else {
-          break;
-        }
-      }
+      if (currentNode->get(n) > data.at(n))
+        currentNode = currentNode->getLeftChild();
+      else
+        currentNode = currentNode->getRightChild();
     }
 
     return false;
@@ -292,7 +346,8 @@ public:
 
   /// @brief prints the entire tree.
   /// @return the current tree instance.
-  RDTree<T, N> &print(void) {
+  RDTree<T, N> &print(void)
+  {
     print(mRoot, 0);
 
     return *this;
@@ -300,28 +355,34 @@ public:
 
   /// @brief prints the entire tree.
   /// @return the current tree instance.
-  const RDTree<T, N> &print(void) const {
+  const RDTree<T, N> &print(void) const
+  {
     print(mRoot, 0);
 
     return *this;
   }
 
-  std::tuple<std::array<T, N>, std::array<T, N>> getRange() {
+  std::tuple<std::array<T, N>, std::array<T, N>> getRange()
+  {
     auto it = this->begin();
 
-    std::array<T, N> min = *it;
-    std::array<T, N> max = *it;
+    std::array<T, N> min = it->getData();
+    std::array<T, N> max = it->getData();
 
     auto end = this->end();
-    for (; it != end; ++it) {
-      const std::array<T, N> &data = *it;
+    for (; it != end; ++it)
+    {
+      const std::array<T, N> &data = it->getData();
 
-      for (size_t i = 0; i < N; ++i) {
-        if (data.at(i) < min.at(i)) {
+      for (size_t i = 0; i < N; ++i)
+      {
+        if (data.at(i) < min.at(i))
+        {
           min.at(i) = data.at(i);
         }
 
-        if (data.at(i) > max.at(i)) {
+        if (data.at(i) > max.at(i))
+        {
           max.at(i) = data.at(i);
         }
       }
@@ -330,52 +391,112 @@ public:
     return std::make_tuple(min, max);
   }
 
-  const std::array<T, N> &nearest(const std::array<T, N> &data) const {
-    std::shared_ptr<RDTreeNode<T, N>> minDistanceNode =
-        std::shared_ptr<RDTreeNode<T, N>>(nullptr);
-    T minDistance = std::numeric_limits<T>::max();
+  /// @brief gets the nearest point in a linear fassion O(n) so yeah, retarded.
+  /// @param point the point to find the nearest point to.
+  /// @return the (optional) nearest point.
+  std::optional<std::shared_ptr<RDTreeNode<T, N>>> idioticNearest(const std::array<T, N> &point)
+  {
+    // If the tree is empty, return nothing.
+    if (this->isEmpty())
+      return std::nullopt;
 
-    std::shared_ptr<RDTreeNode<T, N>> currentNode = mRoot;
-    for (size_t n = 0; currentNode.get() != nullptr; n = (n + 1) % N) {
-      // Checks if the distance of the current node is more close.
-      const T distance = currentNode->euclideanDistanceTo(data);
-      if (distance < minDistance) {
-        minDistance = distance;
-        minDistanceNode = currentNode;
-      }
+    // Initialize the variables with initial node.
+    auto it = this->begin();
+    T nearestDistance = it->squaredDistanceTo(point);
+    std::shared_ptr<RDTreeNode<T, N>> nearestNode = *it;
 
-      // Gets the values to compare.
-      const T &a = currentNode->get(n);
-      const T &b = data.at(n);
-
-      // If the value of the nth value in the current node is greater than
-      //  the nth value in the data, we insert it in the left child.
-      if (a > b) {
-        if (currentNode->getLeftChild().get() != nullptr) {
-          currentNode = currentNode->getLeftChild();
-        } else {
-          break;
-        }
-      } else {
-        if (currentNode->getRightChild().get() != nullptr) {
-          currentNode = currentNode->getRightChild();
-        } else {
-          break;
-        }
+    // Check if there are any better values.
+    auto end = this->end();
+    for (++it; it != end; ++it)
+    {
+      const auto node = *it;
+      const T distance = node->squaredDistanceTo(point);
+      if (distance < nearestDistance)
+      {
+        nearestDistance = distance;
+        nearestNode = node;
       }
     }
 
-    return minDistanceNode->getData();
+    // Reutrns the nearest node.
+    return nearestNode;
+  }
+
+  /// @brief finds the nearest point in a (usually) O(log n) fassion.
+  /// @param data the point to find.
+  /// @return the (optional) nearest point.
+  std::optional<std::shared_ptr<RDTreeNode<T, N>>>
+  nearest(const std::array<T, N> &data)
+  {
+    std::function<
+        std::tuple<T, std::shared_ptr<RDTreeNode<T, N>>>(std::shared_ptr<RDTreeNode<T, N>>, size_t)>
+        recursive;
+
+    recursive = [&recursive, &data](std::shared_ptr<RDTreeNode<T, N>> node, size_t i)
+    {
+      // Initializes the variables with the currently known nearest node and it's distance.
+      T nearestDistance = node->squaredDistanceTo(data);
+      std::shared_ptr<RDTreeNode<T, N>> nearestNode = node;
+
+      // Gets the child to traverse into.
+      std::shared_ptr<RDTreeNode<T, N>> child(nullptr);
+      std::shared_ptr<RDTreeNode<T, N>> otherChild(nullptr);
+      if (node->get(i % N) > data.at(i % N))
+      {
+        child = node->getLeftChild();
+        otherChild = node->getRightChild();
+      }
+      else
+      {
+        child = node->getRightChild();
+        otherChild = node->getLeftChild();
+      }
+
+      // Checks for the nearest distance along the regular tree traversal.
+      if (child.get() != nullptr)
+      {
+        auto [possibleNearestDistance, possibleNearestNode] = recursive(child, i + 1);
+        if (possibleNearestDistance < nearestDistance)
+        {
+          nearestDistance = possibleNearestDistance;
+          nearestNode = possibleNearestNode;
+        }
+      }
+
+      // If there is an other child, check if it is possible for anything
+      //  closer to be in there, and if so, traverse it.
+      if (otherChild.get() != nullptr)
+      {
+        const T distanceCheck = std::pow(node->get(i % N) - data.at(i % N), static_cast<T>(2));
+        if (distanceCheck < nearestDistance)
+        {
+          auto [possibleNearestDistance, possibleNearestNode] = recursive(otherChild, i + 1);
+          if (possibleNearestDistance < nearestDistance)
+          {
+            nearestDistance = possibleNearestDistance;
+            nearestNode = possibleNearestNode;
+          }
+        }
+      }
+
+      return std::make_tuple(nearestDistance, nearestNode);
+    };
+
+    if (isEmpty())
+      return std::nullopt;
+
+    return std::get<1>(recursive(mRoot, 0));
   }
 
 public:
   /// @brief an iterator class for traversal of the tree.
-  class iterator {
+  class iterator
+  {
     using iterator_category = std::forward_iterator_tag;
     using difference_type = size_t;
-    using value_type = std::array<T, N>;
-    using pointer = std::array<T, N> *;
-    using reference = std::array<T, N> &;
+    using value_type = std::shared_ptr<RDTreeNode<T, N>>;
+    using pointer = std::shared_ptr<RDTreeNode<T, N>>;
+    using reference = std::shared_ptr<RDTreeNode<T, N>>;
 
   private:
     std::shared_ptr<RDTreeNode<T, N>> mNode;
@@ -388,7 +509,8 @@ public:
 
     /// @brief traverses the tree.
     /// @return the reference to the current iterator.
-    iterator &operator++(void) {
+    iterator &operator++(void)
+    {
       /*
       Luke Binary-Tree Traversal
       Perform the following actions for each iteration:
@@ -400,28 +522,34 @@ public:
       */
 
       // If there is a left child, traverse into it.
-      if (mNode->hasLeftChild()) {
+      if (mNode->hasLeftChild())
+      {
         mNode = mNode->getLeftChild();
         return *this;
       }
 
       // If there is a right child, traverse into it.
-      if (mNode->hasRightChild()) {
+      if (mNode->hasRightChild())
+      {
         mNode = mNode->getRightChild();
         return *this;
       }
 
       // Find a parent node that has a right child we can traverse.
-      mNode = [](std::shared_ptr<RDTreeNode<T, N>> current) {
-        while (true) {
-          if (not current->hasParent()) {
+      mNode = [](std::shared_ptr<RDTreeNode<T, N>> current)
+      {
+        while (true)
+        {
+          if (not current->hasParent())
+          {
             return std::shared_ptr<RDTreeNode<T, N>>(nullptr);
           }
 
           std::shared_ptr<RDTreeNode<T, N>> parent =
               current->getParent().lock();
 
-          if (parent->hasRightChild() and parent->getRightChild() != current) {
+          if (parent->hasRightChild() and parent->getRightChild() != current)
+          {
             return parent->getRightChild();
           }
 
@@ -434,7 +562,8 @@ public:
     /// @brief traverses the tree but also returning the unmodified iterator.
     /// @param ignored.
     /// @return the unmodified iterator.
-    iterator operator++(int) {
+    iterator operator++(int)
+    {
       iterator result = *this;
 
       ++(*this);
@@ -445,24 +574,32 @@ public:
     /// @brief Overrides the equals operator.
     /// @param other the other iterator to compare to.
     /// @return if the two iterators are equal.
-    bool operator==(const iterator &other) const noexcept {
+    bool operator==(const iterator &other) const noexcept
+    {
       return (mTree == other.mTree) and (mNode == other.mNode);
     }
 
     /// @brief Overrides the unequal operator.
     /// @param other the other iterator to compare to.
     /// @return if the two iterators are unequal.
-    bool operator!=(const iterator &other) const noexcept {
+    bool operator!=(const iterator &other) const noexcept
+    {
       return !((*this) == other);
     }
 
     /// @brief gets the reference to the current value in the iterator.
     /// @return the reference.
-    reference &operator*(void) { return mNode->getData(); }
+    reference operator*(void)
+    {
+      return mNode;
+    }
 
     /// @brief gets the pointer to the current value in the iterator.
     /// @return the pointer.
-    pointer operator->(void) { return mNode.get(); }
+    pointer operator->(void)
+    {
+      return mNode;
+    }
   };
 
   /// @brief gets the beginning of the tree traversal iterator.
@@ -471,7 +608,8 @@ public:
 
   /// @brief gets the end of the tree traversal iterator.
   /// @return the end of the iterator.
-  iterator end(void) {
+  iterator end(void)
+  {
     return iterator(std::shared_ptr<RDTreeNode<T, N>>(nullptr), this);
   }
 };
@@ -480,7 +618,8 @@ typedef RDTreeNode<double, 2> RDTreeNode2D;
 typedef RDTreeNode<double, 3> RDTreeNode3D;
 
 /// @brief a converter for converting lidar measurements to a rd tree.
-class RDTreeFromLidarConverter {
+class RDTreeFromLidarConverter
+{
 protected:
   bool mDisposeZeroDistances;
 
@@ -494,7 +633,8 @@ public:
 public:
   /// @brief constructs a rd tree from lidar converter with default options.
   /// @return the constructed converter.
-  static RDTreeFromLidarConverter defaults(void) noexcept {
+  static RDTreeFromLidarConverter defaults(void) noexcept
+  {
     return RDTreeFromLidarConverter(true);
   }
 
@@ -506,20 +646,26 @@ public:
   /// @return the rd tree containing the points measured by the lidar.
   template <typename T>
   RDTree<T, 2> convertHQ(const sl_lidar_response_measurement_node_hq_t *nodes,
-                         const size_t nNodes) {
+                         const size_t nNodes)
+  {
     RDTree<T, 2> tree = RDTree<T, 2>::empty();
 
-    for (size_t i = 0; i < nNodes; ++i) {
+    for (size_t i = 0; i < nNodes; ++i)
+    {
       const sl_lidar_response_measurement_node_hq_t *node = &nodes[i];
 
       // Disposes zero distance points, if configured to do so.
-      if (mDisposeZeroDistances and node->dist_mm_q2 == 0) {
+      if (mDisposeZeroDistances and node->dist_mm_q2 == 0)
+      {
         continue;
       }
 
       // Calculates the angle and the distance.
-      const T angle = (((static_cast<T>(node->angle_z_q14) * static_cast<T>(90)) /
-                      static_cast<T>(16384)) / static_cast<T>(180)) * std::numbers::pi_v<T>;
+      const T angle =
+          (((static_cast<T>(node->angle_z_q14) * static_cast<T>(90)) /
+            static_cast<T>(16384)) /
+           static_cast<T>(180)) *
+          std::numbers::pi_v<T>;
       const T distance = (static_cast<T>(node->dist_mm_q2) / static_cast<T>(4));
 
       // Calculates the X and Y coordinates from the polar angle and distance.

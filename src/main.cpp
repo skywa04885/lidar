@@ -1,8 +1,10 @@
+#include <chrono>
 #include <cstring>
 #include <iostream>
 #include <memory>
 #include <tuple>
 
+#include "Timer.hpp"
 #include "Lidar.hpp"
 #include "RDTree.hpp"
 
@@ -11,10 +13,12 @@
 
 /// @brief shows the given lidar device into.
 /// @param info the device info to show.
-void showLidarDeviceInfo(const sl_lidar_response_device_info_t &info) {
+void showLidarDeviceInfo(const sl_lidar_response_device_info_t &info)
+{
   printf("SLAMTEC Lidar SerialNumber: ");
 
-  for (size_t i = 0; i < 16; ++i) {
+  for (size_t i = 0; i < 16; ++i)
+  {
     printf("%02X", info.serialnum[i]);
   }
 
@@ -27,10 +31,12 @@ void showLidarDeviceInfo(const sl_lidar_response_device_info_t &info) {
 
 /// @brief shows the given lidar health info.
 /// @param health the health info to show.
-void showLidarHealthInfo(const sl_lidar_response_device_health_t &health) {
+void showLidarHealthInfo(const sl_lidar_response_device_health_t &health)
+{
   printf("SLAMTEC Lidar health status: ");
 
-  switch (health.status) {
+  switch (health.status)
+  {
   case SL_LIDAR_STATUS_ERROR:
     printf("Error (%hu)\n", health.error_code);
     break;
@@ -46,15 +52,18 @@ void showLidarHealthInfo(const sl_lidar_response_device_health_t &health) {
 }
 
 template <typename T, size_t N>
-std::ostream &operator<<(std::ostream &stream, const std::array<T, N> &array) {
+std::ostream &operator<<(std::ostream &stream, const std::array<T, N> &array)
+{
   auto it = array.begin();
   auto end = array.end();
 
   stream << "{";
-  while (it != end) {
+  while (it != end)
+  {
     stream << *it;
 
-    if (++it != end) {
+    if (++it != end)
+    {
       stream << ", ";
     }
   }
@@ -65,7 +74,8 @@ std::ostream &operator<<(std::ostream &stream, const std::array<T, N> &array) {
 }
 
 template <typename T>
-void printRdtree(RDTree<T, 2> &tree, size_t width, size_t height) {
+void printRdtree(RDTree<T, 2> &tree, size_t width, size_t height)
+{
   char point = '*';
   char empty = ' ';
 
@@ -76,7 +86,10 @@ void printRdtree(RDTree<T, 2> &tree, size_t width, size_t height) {
       std::unique_ptr<char[]>(new char[width * height]);
   std::memset(screen.get(), (int)empty, width * height);
 
-  for (auto &data : tree) {
+  for (const auto node : tree)
+  {
+    auto &data = node->getData();
+
     T rowPercentage = (data.at(1) - min.at(1)) / (max.at(1) - min.at(1));
     size_t row =
         static_cast<size_t>(static_cast<T>(height - 1) * rowPercentage);
@@ -87,8 +100,10 @@ void printRdtree(RDTree<T, 2> &tree, size_t width, size_t height) {
     screen.get()[row * width + col] = point;
   }
 
-  for (size_t row = 0; row < height; ++row) {
-    for (size_t col = 0; col < width; ++col) {
+  for (size_t row = 0; row < height; ++row)
+  {
+    for (size_t col = 0; col < width; ++col)
+    {
       std::cout << screen.get()[row * width + col];
     }
 
@@ -96,7 +111,8 @@ void printRdtree(RDTree<T, 2> &tree, size_t width, size_t height) {
   }
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   std::string lidarSerialPort = "/dev/ttyUSB0";
   int lidarSerialPortBaudRate = 115200;
 
@@ -108,13 +124,12 @@ int main(int argc, char *argv[]) {
   const auto lidarHealth = lidar.getHealth();
   showLidarHealthInfo(lidarHealth);
 
-  for (;;) {
+  for (;;)
+  {
     auto [nodeCount, nodes] = lidar.scan();
 
     auto tree = RDTreeFromLidarConverter::defaults().convertHQ<double>(
         nodes.get(), nodeCount);
-
-    system("clear");
     printRdtree(tree, 60, 30);
   }
 

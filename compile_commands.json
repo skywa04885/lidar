@@ -13,5 +13,185 @@
     "directory": "/home/luke/Documents/C++/Robot",
     "file": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/sl_serial_channel.cpp",
     "output": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/sl_serial_channel.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-I./inc",
+      "-I./vendor/sl_lidar_sdk/inc",
+      "-c",
+      "-o",
+      "vendor/sl_lidar_sdk/src/hal/thread.o",
+      "vendor/sl_lidar_sdk/src/hal/thread.cpp"
+    ],
+    "directory": "/home/luke/Documents/C++/Robot",
+    "file": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/hal/thread.cpp",
+    "output": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/hal/thread.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-I./inc",
+      "-I./vendor/sl_lidar_sdk/inc",
+      "-c",
+      "-o",
+      "vendor/sl_lidar_sdk/src/sl_tcp_channel.o",
+      "vendor/sl_lidar_sdk/src/sl_tcp_channel.cpp"
+    ],
+    "directory": "/home/luke/Documents/C++/Robot",
+    "file": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/sl_tcp_channel.cpp",
+    "output": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/sl_tcp_channel.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-I./inc",
+      "-I./vendor/sl_lidar_sdk/inc",
+      "-c",
+      "-o",
+      "vendor/sl_lidar_sdk/src/rplidar_driver.o",
+      "vendor/sl_lidar_sdk/src/rplidar_driver.cpp"
+    ],
+    "directory": "/home/luke/Documents/C++/Robot",
+    "file": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/rplidar_driver.cpp",
+    "output": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/rplidar_driver.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-I./inc",
+      "-I./vendor/sl_lidar_sdk/inc",
+      "-c",
+      "-o",
+      "vendor/sl_lidar_sdk/src/sl_crc.o",
+      "vendor/sl_lidar_sdk/src/sl_crc.cpp"
+    ],
+    "directory": "/home/luke/Documents/C++/Robot",
+    "file": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/sl_crc.cpp",
+    "output": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/sl_crc.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-I./inc",
+      "-I./vendor/sl_lidar_sdk/inc",
+      "-c",
+      "-o",
+      "vendor/sl_lidar_sdk/src/sl_lidar_driver.o",
+      "vendor/sl_lidar_sdk/src/sl_lidar_driver.cpp"
+    ],
+    "directory": "/home/luke/Documents/C++/Robot",
+    "file": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/sl_lidar_driver.cpp",
+    "output": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/sl_lidar_driver.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-I./inc",
+      "-I./vendor/sl_lidar_sdk/inc",
+      "-c",
+      "-o",
+      "vendor/sl_lidar_sdk/src/sl_udp_channel.o",
+      "vendor/sl_lidar_sdk/src/sl_udp_channel.cpp"
+    ],
+    "directory": "/home/luke/Documents/C++/Robot",
+    "file": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/sl_udp_channel.cpp",
+    "output": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/sl_udp_channel.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-I./inc",
+      "-I./vendor/sl_lidar_sdk/inc",
+      "-c",
+      "-o",
+      "vendor/sl_lidar_sdk/src/arch/linux/net_serial.o",
+      "vendor/sl_lidar_sdk/src/arch/linux/net_serial.cpp"
+    ],
+    "directory": "/home/luke/Documents/C++/Robot",
+    "file": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/arch/linux/net_serial.cpp",
+    "output": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/arch/linux/net_serial.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-I./inc",
+      "-I./vendor/sl_lidar_sdk/inc",
+      "-c",
+      "-o",
+      "vendor/sl_lidar_sdk/src/arch/linux/net_socket.o",
+      "vendor/sl_lidar_sdk/src/arch/linux/net_socket.cpp"
+    ],
+    "directory": "/home/luke/Documents/C++/Robot",
+    "file": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/arch/linux/net_socket.cpp",
+    "output": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/arch/linux/net_socket.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-I./inc",
+      "-I./vendor/sl_lidar_sdk/inc",
+      "-c",
+      "-o",
+      "vendor/sl_lidar_sdk/src/arch/linux/timer.o",
+      "vendor/sl_lidar_sdk/src/arch/linux/timer.cpp"
+    ],
+    "directory": "/home/luke/Documents/C++/Robot",
+    "file": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/arch/linux/timer.cpp",
+    "output": "/home/luke/Documents/C++/Robot/vendor/sl_lidar_sdk/src/arch/linux/timer.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-I./inc",
+      "-I./vendor/sl_lidar_sdk/inc",
+      "-c",
+      "-o",
+      "src/main.o",
+      "src/main.cpp"
+    ],
+    "directory": "/home/luke/Documents/C++/Robot",
+    "file": "/home/luke/Documents/C++/Robot/src/main.cpp",
+    "output": "/home/luke/Documents/C++/Robot/src/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-I./inc",
+      "-I./vendor/sl_lidar_sdk/inc",
+      "-c",
+      "-o",
+      "src/PointClouds.o",
+      "src/PointClouds.cpp"
+    ],
+    "directory": "/home/luke/Documents/C++/Robot",
+    "file": "/home/luke/Documents/C++/Robot/src/PointClouds.cpp",
+    "output": "/home/luke/Documents/C++/Robot/src/PointClouds.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++20",
+      "-I./inc",
+      "-I./vendor/sl_lidar_sdk/inc",
+      "-c",
+      "-o",
+      "src/RDTree.o",
+      "src/RDTree.cpp"
+    ],
+    "directory": "/home/luke/Documents/C++/Robot",
+    "file": "/home/luke/Documents/C++/Robot/src/RDTree.cpp",
+    "output": "/home/luke/Documents/C++/Robot/src/RDTree.o"
   }
 ]

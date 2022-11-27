@@ -14,9 +14,9 @@ CPP_LINKER_ARGS += -L./libraries
 %.o: %.cpp
 	g++ -std=c++20 $(CPP_INCLUDES) $< -c -o $@
 %.o: %.c
-	gcc $(C_INCLUDES) $< -c -o $@
+	gcc -g $(C_INCLUDES) $< -c -o $@
 
 all: $(OBJECTS)
-	g++ -std=c++20 $(CPP_LINKER_ARGS) $(OBJECTS)
+	g++ -std=c++20 -g $(CPP_LINKER_ARGS) $(OBJECTS)
 clean:
 	rm -rf $(OBJECTS)
