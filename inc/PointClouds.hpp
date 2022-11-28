@@ -4,58 +4,74 @@
 #include <tuple>
 #include <vector>
 
-#include "RDTree.hpp"
+#include "KDTree.hpp"
 
-namespace PointClouds {
-template <typename T> struct MapperOptions {
-public:
-  double learningRate, exitThreshold;
+namespace PointClouds
+{
+  template <typename T>
+  class PointCloud2D
+  {
+  protected:
+    KDTree<T, 2> mTree;
+  };
 
-public:
-  /// @brief constructs a new mapper options structure.
-  /// @param learningRate the learning rate.
-  /// @param exitThreshold the threshold to exit.
-  MapperOptions(double learningRate, double exitThreshold) noexcept;
+  template <typename T>
+  struct MapperOptions
+  {
+  public:
+    double learningRate, exitThreshold;
 
-public:
-  /// @brief constructs a mapper options struct with default values.
-  /// @return the constructed mapper options.
-  static MapperOptions defaults(void) noexcept;
-};
+  public:
+    /// @brief constructs a new mapper options structure.
+    /// @param learningRate the learning rate.
+    /// @param exitThreshold the threshold to exit.
+    MapperOptions(double learningRate, double exitThreshold) noexcept;
 
-template <typename T> class Mapper2D {
-private:
-  MapperOptions<T> mOptions;
+  public:
+    /// @brief constructs a mapper options struct with default values.
+    /// @return the constructed mapper options.
+    static MapperOptions defaults(void) noexcept;
+  };
 
-public:
-  /// @brief constructs a new mapper.
-  /// @param options the options for the mapper.
-  Mapper2D(const MapperOptions<T> &options) : mOptions(options) {}
+  template <typename T>
+  class Mapper2D
+  {
+  private:
+    MapperOptions<T> mOptions;
 
-public:
-  std::vector<std::tuple<std::array<T, 2>, std::array<T, 2>>>
-  getNearestPointPairs(const RDTree<T, 2> &targetTree,
-                       const RDTree<T, 2> &referenceTree) {
-    std::vector<std::tuple<std::array<T, 2>, std::array<T, 2>>> result;
-    result.reserve(targetTree.getSize());
+  public:
+    /// @brief constructs a new mapper.
+    /// @param options the options for the mapper.
+    Mapper2D(const MapperOptions<T> &options) : mOptions(options) {}
 
-    std::for_each(targetTree.begin(), targetTree.end(),
-                  [&](const std::array<T, 2> &targetPoint) {
-                    const auto &nearestReferencePoint =
-                        referenceTree.nearest(targetPoint);
+  public:
+    std::vector<std::tuple<std::array<T, 2>, std::array<T, 2>>>
+    getNearestPointPairs(const KDTree<T, 2> &targetTree,
+                         const KDTree<T, 2> &referenceTree)
+    {
+      std::vector<std::tuple<std::array<T, 2>, std::array<T, 2>>> result;
+      result.reserve(targetTree.getSize());
 
-                    result.push_back(nearestReferencePoint);
-                  });
-    return result;
-  }
+      std::for_each(targetTree.begin(), targetTree.end(),
+                    [&](const std::array<T, 2> &targetPoint)
+                    {
+                      const auto &nearestReferencePoint =
+                          referenceTree.nearest(targetPoint);
 
-  T orientational(RDTree<T, 2> &target, RDTree<T, 2> &reference) const {
-    if (target.isEmpty() || reference.isEmpty()) {
-      throw std::runtime_error(
-          "The target and reference tree must not be empty.");
+                      result.push_back(nearestReferencePoint);
+                    });
+      return result;
     }
 
-    auto nearestPointPairs = getNearestPointPairs(target, reference);
-  }
-};
+    T orientational(KDTree<T, 2> &target, KDTree<T, 2> &reference) const
+    {
+      if (target.isEmpty() || reference.isEmpty())
+      {
+        throw std::runtime_error(
+            "The target and reference tree must not be empty.");
+      }
+
+      auto nearestPointPairs = getNearestPointPairs(target, reference);
+    }
+  };
 } // namespace PointClouds

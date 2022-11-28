@@ -6,10 +6,19 @@
 
 #include "Timer.hpp"
 #include "Lidar.hpp"
-#include "RDTree.hpp"
+#include "KDTree.hpp"
 
 #include "sl_lidar.h"
 #include "sl_lidar_driver.h"
+
+void showLidarScanModes(const std::vector<sl::LidarScanMode> &modes)
+{
+  for (const auto &mode : modes)
+  {
+    printf("id: %hu\nans_type: %hhu\nmax_distance: %f\nmode: %s\nus_per_sample: %f\n",
+           mode.id, mode.ans_type, mode.max_distance, mode.scan_mode, mode.us_per_sample);
+  }
+}
 
 /// @brief shows the given lidar device into.
 /// @param info the device info to show.
@@ -74,13 +83,15 @@ std::ostream &operator<<(std::ostream &stream, const std::array<T, N> &array)
 }
 
 template <typename T>
-void printRdtree(RDTree<T, 2> &tree, size_t width, size_t height)
+void printRdtree(KDTree<T, 2> &tree, size_t width, size_t height)
 {
   char point = '*';
   char empty = ' ';
 
-  auto [min, max] = tree.getRange();
-  std::cout << "Min: " << min << ", Max: " << max << std::endl;
+  std::array<T, 2> min{static_cast<T>(-2000), static_cast<T>(-2000)};
+  std::array<T, 2> max{static_cast<T>(2000), static_cast<T>(2000)};
+  // auto [min, max] = tree.getRange();
+  // std::cout << "Min: " << min << ", Max: " << max << std::endl;
 
   std::unique_ptr<char[]> screen =
       std::unique_ptr<char[]>(new char[width * height]);
@@ -89,6 +100,11 @@ void printRdtree(RDTree<T, 2> &tree, size_t width, size_t height)
   for (const auto node : tree)
   {
     auto &data = node->getData();
+
+    if (!(data.at(0) > min.at(0) && data.at(0) < max.at(0) && data.at(1) > min.at(1) && data.at(1) < max.at(1)))
+    {
+      continue;
+    }
 
     T rowPercentage = (data.at(1) - min.at(1)) / (max.at(1) - min.at(1));
     size_t row =
@@ -124,13 +140,21 @@ int main(int argc, char *argv[])
   const auto lidarHealth = lidar.getHealth();
   showLidarHealthInfo(lidarHealth);
 
+  lidar.setMode("Express");
+
   for (;;)
   {
     auto [nodeCount, nodes] = lidar.scan();
 
-    auto tree = RDTreeFromLidarConverter::defaults().convertHQ<double>(
-        nodes.get(), nodeCount);
-    printRdtree(tree, 60, 30);
+    auto converter = LidarCoordinateConverter<double>::builder().translateX(100.0).translateY(100.0).build(nodes, nodeCount);
+    auto tree = KDTree<double, 2>::empty();
+    for (std::array<double, 2> value : converter)
+    {
+      tree.insert(value);
+    }
+
+    printf("Scan: %lu\n", tree.getSize());
+    printRdtree(tree, 50, 30);
   }
 
   return 0;

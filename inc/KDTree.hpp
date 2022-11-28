@@ -13,18 +13,18 @@
 #include "sl_lidar.h"
 #include "sl_lidar_driver.h"
 
-/// @brief a node for an RDTree data structure.
+/// @brief a node for an KDTree data structure.
 /// @tparam T the type of data.
 /// @tparam N the number of data elements.
 template <typename T, size_t N>
-struct RDTreeNode
+struct KDTreeNode
 {
-  typedef std::array<T, N> RDTreeNodeData;
+  typedef std::array<T, N> KDTreeNodeData;
 
 public:
-  std::weak_ptr<RDTreeNode> mParent;
-  std::shared_ptr<RDTreeNode> mLeftChild, mRightChild;
-  RDTreeNodeData mData;
+  std::weak_ptr<KDTreeNode> mParent;
+  std::shared_ptr<KDTreeNode> mLeftChild, mRightChild;
+  KDTreeNodeData mData;
 
 public:
   /// @brief constructor for the rd tree node.
@@ -32,9 +32,9 @@ public:
   /// @param leftChild the left child of the node.
   /// @param rightChild the right child of the node.
   /// @param data the data of the node.
-  RDTreeNode(std::weak_ptr<RDTreeNode> parent,
-             std::shared_ptr<RDTreeNode> leftChild,
-             std::shared_ptr<RDTreeNode> rightChild, const RDTreeNodeData &data)
+  KDTreeNode(std::weak_ptr<KDTreeNode> parent,
+             std::shared_ptr<KDTreeNode> leftChild,
+             std::shared_ptr<KDTreeNode> rightChild, const KDTreeNodeData &data)
       : mParent(parent), mLeftChild(leftChild), mRightChild(rightChild),
         mData(data) {}
 
@@ -42,11 +42,11 @@ public:
   /// @brief create a root node.
   /// @param data the data for the root node.
   /// @return the constructed root node as smart pointer.
-  static std::shared_ptr<RDTreeNode> createRoot(const RDTreeNodeData &data)
+  static std::shared_ptr<KDTreeNode> createRoot(const KDTreeNodeData &data)
   {
-    return std::make_shared<RDTreeNode>(std::shared_ptr<RDTreeNode>(nullptr),
-                                        std::shared_ptr<RDTreeNode>(nullptr),
-                                        std::shared_ptr<RDTreeNode>(nullptr),
+    return std::make_shared<KDTreeNode>(std::shared_ptr<KDTreeNode>(nullptr),
+                                        std::shared_ptr<KDTreeNode>(nullptr),
+                                        std::shared_ptr<KDTreeNode>(nullptr),
                                         data);
   }
 
@@ -54,12 +54,12 @@ public:
   /// @param data the data for the child node.
   /// @param parent the parent of the child node.
   /// @return the constructed child node as smart pointer.
-  static std::shared_ptr<RDTreeNode>
-  createChild(const RDTreeNodeData &data, std::weak_ptr<RDTreeNode> parent)
+  static std::shared_ptr<KDTreeNode>
+  createChild(const KDTreeNodeData &data, std::weak_ptr<KDTreeNode> parent)
   {
-    return std::make_shared<RDTreeNode>(
-        parent, std::shared_ptr<RDTreeNode>(nullptr),
-        std::shared_ptr<RDTreeNode>(nullptr), data);
+    return std::make_shared<KDTreeNode>(
+        parent, std::shared_ptr<KDTreeNode>(nullptr),
+        std::shared_ptr<KDTreeNode>(nullptr), data);
   }
 
 public:
@@ -86,14 +86,14 @@ public:
 
   /// @brief gets the left child.
   /// @return the left child.
-  inline std::shared_ptr<RDTreeNode<T, N>> getLeftChild(void)
+  inline std::shared_ptr<KDTreeNode<T, N>> getLeftChild(void)
   {
     return mLeftChild;
   }
 
   /// @brief gets the right child.
   /// @return the right child.
-  inline std::shared_ptr<RDTreeNode<T, N>> getRightChild(void)
+  inline std::shared_ptr<KDTreeNode<T, N>> getRightChild(void)
   {
     return mRightChild;
   }
@@ -101,8 +101,8 @@ public:
   /// @brief sets the left child.
   /// @param leftChild the left child to set.
   /// @return the current instance.
-  inline RDTreeNode<T, N> &
-  setLeftChild(const std::shared_ptr<RDTreeNode<T, N>> &leftChild)
+  inline KDTreeNode<T, N> &
+  setLeftChild(const std::shared_ptr<KDTreeNode<T, N>> &leftChild)
   {
     mLeftChild = leftChild;
 
@@ -112,8 +112,8 @@ public:
   /// @brief sets the right child.
   /// @param rightChild the right child to set.
   /// @return the current instance.
-  inline RDTreeNode<T, N> &
-  setRightChild(const std::shared_ptr<RDTreeNode<T, N>> &rightChild)
+  inline KDTreeNode<T, N> &
+  setRightChild(const std::shared_ptr<KDTreeNode<T, N>> &rightChild)
   {
     mRightChild = rightChild;
 
@@ -122,7 +122,7 @@ public:
 
   /// @brief gets the parent.
   /// @return the parent.
-  inline std::weak_ptr<RDTreeNode<T, N>> getParent(void) { return mParent; }
+  inline std::weak_ptr<KDTreeNode<T, N>> getParent(void) { return mParent; }
 
   /// @brief gets the data.
   /// @return the data.
@@ -159,34 +159,37 @@ public:
   }
 
   /// @brief prints the current node.
-  void print(void) const {
+  void print(void) const
+  {
     std::cout << "{";
 
-    for (size_t i = 0; i < N; ++i) {
+    for (size_t i = 0; i < N; ++i)
+    {
       std::cout << mData[i];
-      if (i + 1 < N) std::cout << ", ";
+      if (i + 1 < N)
+        std::cout << ", ";
     }
 
     std::cout << "}" << std::endl;
   }
 };
 
-/// @brief the RDTree data structure.
+/// @brief the KDTree data structure.
 /// @tparam T the type of data.
 /// @tparam N the number of data elements.
 template <typename T, size_t N>
-class RDTree
+class KDTree
 {
 
 protected:
-  std::shared_ptr<RDTreeNode<T, N>> mRoot;
+  std::shared_ptr<KDTreeNode<T, N>> mRoot;
   size_t mSize;
 
 public:
-  /// @brief Constructs a RDTree.
+  /// @brief Constructs a KDTree.
   /// @param root the root element for the tree.
   /// @param size the size of the tree.
-  RDTree(const std::shared_ptr<RDTreeNode<T, N>> &root, const size_t size)
+  KDTree(const std::shared_ptr<KDTreeNode<T, N>> &root, const size_t size)
       : mRoot(root), mSize(size) {}
 
 public:
@@ -195,7 +198,7 @@ public:
   /// @param min the lower part of the random range.
   /// @param max the upper part of the random range.
   /// @return the random;y generated tre.
-  static RDTree<T, N> random(size_t n, const std::array<T, N> &min, const std::array<T, N> &max)
+  static KDTree<T, N> random(size_t n, const std::array<T, N> &min, const std::array<T, N> &max)
   {
     auto tree = empty();
 
@@ -217,11 +220,11 @@ public:
     return tree;
   }
 
-  /// @brief Constructs an empty RDTree.
-  /// @return the constructed empty RDTree.
-  static RDTree<T, N> empty(void) noexcept
+  /// @brief Constructs an empty KDTree.
+  /// @return the constructed empty KDTree.
+  static KDTree<T, N> empty(void) noexcept
   {
-    return RDTree(std::shared_ptr<RDTreeNode<T, N>>(nullptr), 0);
+    return KDTree(std::shared_ptr<KDTreeNode<T, N>>(nullptr), 0);
   }
 
 public:
@@ -234,21 +237,21 @@ public:
   inline bool isEmpty(void) const noexcept { return mRoot.get() == nullptr; }
 
 protected:
-  /// @brief inserts a root into the RDTree.
+  /// @brief inserts a root into the KDTree.
   /// @param data the data for the rood child/
-  /// @return the current RDTree instance.
-  RDTree<T, N> &insertRoot(const std::array<T, N> &data)
+  /// @return the current KDTree instance.
+  KDTree<T, N> &insertRoot(const std::array<T, N> &data)
   {
-    mRoot = RDTreeNode<T, N>::createRoot(data);
+    mRoot = KDTreeNode<T, N>::createRoot(data);
     return *this;
   }
 
-  /// @brief inserts a child into the RDTree.
-  /// @param data the data to insert into the RDTree.
-  /// @return the current RDTree instance.
-  RDTree<T, N> &insertChild(const std::array<T, N> &data)
+  /// @brief inserts a child into the KDTree.
+  /// @param data the data to insert into the KDTree.
+  /// @return the current KDTree instance.
+  KDTree<T, N> &insertChild(const std::array<T, N> &data)
   {
-    std::shared_ptr<RDTreeNode<T, N>> currentNode = mRoot;
+    std::shared_ptr<KDTreeNode<T, N>> currentNode = mRoot;
 
     for (size_t i = 0;; ++i)
     {
@@ -259,7 +262,7 @@ protected:
         else
         {
           currentNode->setLeftChild(
-              RDTreeNode<T, N>::createChild(data, currentNode));
+              KDTreeNode<T, N>::createChild(data, currentNode));
           break;
         }
       }
@@ -270,7 +273,7 @@ protected:
         else
         {
           currentNode->setRightChild(
-              RDTreeNode<T, N>::createChild(data, currentNode));
+              KDTreeNode<T, N>::createChild(data, currentNode));
           break;
         }
       }
@@ -282,7 +285,7 @@ protected:
   /// @brief prints the given node with the given indentation (through n).
   /// @param node the node to print.
   /// @param n the indentation number.
-  void print(const std::shared_ptr<RDTreeNode<T, N>> &node,
+  void print(const std::shared_ptr<KDTreeNode<T, N>> &node,
              const size_t n) const
   {
     if (node.get() == nullptr)
@@ -311,10 +314,10 @@ protected:
   }
 
 public:
-  /// @brief inserts a datapoint into the RDTree.
+  /// @brief inserts a datapoint into the KDTree.
   /// @param data the data to insert.
-  /// @return the current RDTree instance.
-  RDTree<T, N> &insert(const std::array<T, N> &data)
+  /// @return the current KDTree instance.
+  KDTree<T, N> &insert(const std::array<T, N> &data)
   {
     ++this->mSize;
     return isEmpty() ? insertRoot(data) : insertChild(data);
@@ -325,7 +328,7 @@ public:
   /// @return true if the tree contains the given data.
   bool contains(const std::array<T, N> &data)
   {
-    std::shared_ptr<RDTreeNode<T, N>> currentNode = mRoot;
+    std::shared_ptr<KDTreeNode<T, N>> currentNode = mRoot;
 
     for (size_t n = 0; currentNode.get() != nullptr; n = (n + 1) % N)
     {
@@ -346,7 +349,7 @@ public:
 
   /// @brief prints the entire tree.
   /// @return the current tree instance.
-  RDTree<T, N> &print(void)
+  KDTree<T, N> &print(void)
   {
     print(mRoot, 0);
 
@@ -355,7 +358,7 @@ public:
 
   /// @brief prints the entire tree.
   /// @return the current tree instance.
-  const RDTree<T, N> &print(void) const
+  const KDTree<T, N> &print(void) const
   {
     print(mRoot, 0);
 
@@ -394,7 +397,7 @@ public:
   /// @brief gets the nearest point in a linear fassion O(n) so yeah, retarded.
   /// @param point the point to find the nearest point to.
   /// @return the (optional) nearest point.
-  std::optional<std::shared_ptr<RDTreeNode<T, N>>> idioticNearest(const std::array<T, N> &point)
+  std::optional<std::shared_ptr<KDTreeNode<T, N>>> idioticNearest(const std::array<T, N> &point)
   {
     // If the tree is empty, return nothing.
     if (this->isEmpty())
@@ -403,7 +406,7 @@ public:
     // Initialize the variables with initial node.
     auto it = this->begin();
     T nearestDistance = it->squaredDistanceTo(point);
-    std::shared_ptr<RDTreeNode<T, N>> nearestNode = *it;
+    std::shared_ptr<KDTreeNode<T, N>> nearestNode = *it;
 
     // Check if there are any better values.
     auto end = this->end();
@@ -425,22 +428,22 @@ public:
   /// @brief finds the nearest point in a (usually) O(log n) fassion.
   /// @param data the point to find.
   /// @return the (optional) nearest point.
-  std::optional<std::shared_ptr<RDTreeNode<T, N>>>
+  std::optional<std::shared_ptr<KDTreeNode<T, N>>>
   nearest(const std::array<T, N> &data)
   {
     std::function<
-        std::tuple<T, std::shared_ptr<RDTreeNode<T, N>>>(std::shared_ptr<RDTreeNode<T, N>>, size_t)>
+        std::tuple<T, std::shared_ptr<KDTreeNode<T, N>>>(std::shared_ptr<KDTreeNode<T, N>>, size_t)>
         recursive;
 
-    recursive = [&recursive, &data](std::shared_ptr<RDTreeNode<T, N>> node, size_t i)
+    recursive = [&recursive, &data](std::shared_ptr<KDTreeNode<T, N>> node, size_t i)
     {
       // Initializes the variables with the currently known nearest node and it's distance.
       T nearestDistance = node->squaredDistanceTo(data);
-      std::shared_ptr<RDTreeNode<T, N>> nearestNode = node;
+      std::shared_ptr<KDTreeNode<T, N>> nearestNode = node;
 
       // Gets the child to traverse into.
-      std::shared_ptr<RDTreeNode<T, N>> child(nullptr);
-      std::shared_ptr<RDTreeNode<T, N>> otherChild(nullptr);
+      std::shared_ptr<KDTreeNode<T, N>> child(nullptr);
+      std::shared_ptr<KDTreeNode<T, N>> otherChild(nullptr);
       if (node->get(i % N) > data.at(i % N))
       {
         child = node->getLeftChild();
@@ -494,17 +497,17 @@ public:
   {
     using iterator_category = std::forward_iterator_tag;
     using difference_type = size_t;
-    using value_type = std::shared_ptr<RDTreeNode<T, N>>;
-    using pointer = std::shared_ptr<RDTreeNode<T, N>>;
-    using reference = std::shared_ptr<RDTreeNode<T, N>>;
+    using value_type = std::shared_ptr<KDTreeNode<T, N>>;
+    using pointer = std::shared_ptr<KDTreeNode<T, N>>;
+    using reference = std::shared_ptr<KDTreeNode<T, N>>;
 
   private:
-    std::shared_ptr<RDTreeNode<T, N>> mNode;
-    RDTree<T, N> *mTree;
+    std::shared_ptr<KDTreeNode<T, N>> mNode;
+    KDTree<T, N> *mTree;
 
   public:
-    explicit iterator(const std::shared_ptr<RDTreeNode<T, N>> &node,
-                      RDTree<T, N> *tree)
+    iterator(const std::shared_ptr<KDTreeNode<T, N>> &node,
+                      KDTree<T, N> *tree)
         : mNode(node), mTree(tree) {}
 
     /// @brief traverses the tree.
@@ -536,16 +539,16 @@ public:
       }
 
       // Find a parent node that has a right child we can traverse.
-      mNode = [](std::shared_ptr<RDTreeNode<T, N>> current)
+      mNode = [](std::shared_ptr<KDTreeNode<T, N>> current)
       {
         while (true)
         {
           if (not current->hasParent())
           {
-            return std::shared_ptr<RDTreeNode<T, N>>(nullptr);
+            return std::shared_ptr<KDTreeNode<T, N>>(nullptr);
           }
 
-          std::shared_ptr<RDTreeNode<T, N>> parent =
+          std::shared_ptr<KDTreeNode<T, N>> parent =
               current->getParent().lock();
 
           if (parent->hasRightChild() and parent->getRightChild() != current)
@@ -610,72 +613,9 @@ public:
   /// @return the end of the iterator.
   iterator end(void)
   {
-    return iterator(std::shared_ptr<RDTreeNode<T, N>>(nullptr), this);
+    return iterator(std::shared_ptr<KDTreeNode<T, N>>(nullptr), this);
   }
 };
 
-typedef RDTreeNode<double, 2> RDTreeNode2D;
-typedef RDTreeNode<double, 3> RDTreeNode3D;
-
-/// @brief a converter for converting lidar measurements to a rd tree.
-class RDTreeFromLidarConverter
-{
-protected:
-  bool mDisposeZeroDistances;
-
-public:
-  /// @brief constructs a rd tree from lidar converter with the given options.
-  /// @param disposeZeroDistances whether or not to dispose zero distance
-  /// entries.
-  RDTreeFromLidarConverter(bool disposeZeroDistances)
-      : mDisposeZeroDistances(disposeZeroDistances) {}
-
-public:
-  /// @brief constructs a rd tree from lidar converter with default options.
-  /// @return the constructed converter.
-  static RDTreeFromLidarConverter defaults(void) noexcept
-  {
-    return RDTreeFromLidarConverter(true);
-  }
-
-public:
-  /// @brief converts lidar measurements to a rd tree.
-  /// @tparam T the type of numbers to use.
-  /// @param nodes the nodes.
-  /// @param nNodes the number of nodes.
-  /// @return the rd tree containing the points measured by the lidar.
-  template <typename T>
-  RDTree<T, 2> convertHQ(const sl_lidar_response_measurement_node_hq_t *nodes,
-                         const size_t nNodes)
-  {
-    RDTree<T, 2> tree = RDTree<T, 2>::empty();
-
-    for (size_t i = 0; i < nNodes; ++i)
-    {
-      const sl_lidar_response_measurement_node_hq_t *node = &nodes[i];
-
-      // Disposes zero distance points, if configured to do so.
-      if (mDisposeZeroDistances and node->dist_mm_q2 == 0)
-      {
-        continue;
-      }
-
-      // Calculates the angle and the distance.
-      const T angle =
-          (((static_cast<T>(node->angle_z_q14) * static_cast<T>(90)) /
-            static_cast<T>(16384)) /
-           static_cast<T>(180)) *
-          std::numbers::pi_v<T>;
-      const T distance = (static_cast<T>(node->dist_mm_q2) / static_cast<T>(4));
-
-      // Calculates the X and Y coordinates from the polar angle and distance.
-      const T x = distance * std::cos(angle);
-      const T y = distance * std::sin(angle);
-
-      // Inserts the point into the tree.
-      tree.insert({x, y});
-    }
-
-    return tree;
-  }
-};
+typedef KDTreeNode<double, 2> KDTreeNode2D;
+typedef KDTreeNode<double, 3> KDTreeNode3D;
